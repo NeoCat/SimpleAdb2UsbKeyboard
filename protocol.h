@@ -21,11 +21,14 @@
 #ifndef ADB_IO_H_
 #define ADB_IO_H_
 
-#define	ADB_IO_PORT			PORTD
-#define	ADB_DIRECTION_PORT	DDRD
-#define	ADB_READ_PORT		PIND
-#define	ADB_IO_BIT			PORTD6
+#define	ADB_IO_PORT			PORTB
+#define	ADB_DIRECTION_PORT	DDRB
+#define	ADB_READ_PORT		PINB
+#define	ADB_IO_BIT			PORTB7
 #define	POLLING_TIMER		0xAC		// (1/16MHz) * 1024 * POLLING_TIMER = 11ms
 //#define	POLLING_TIMER		0x68		// (1/16MHz) * 1024 * POLLING_TIMER = 6.6ms
+
+#define	LED_PORT			PORTC
+#define LED_BIT			PORTC7
 
 #endif /* ADB_IO_H_ */

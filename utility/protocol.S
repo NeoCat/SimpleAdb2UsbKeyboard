@@ -65,6 +65,11 @@
 ;---------------------------------------------------
 .global	simpleAdbProtocol
 simpleAdbProtocol:
+	push		XL
+	push		XH
+	push		YL
+	push		YH
+	push		tmpVal
 	push	bitNo							; the other registers are push/pop by ISR()
 	push	counter
 	push	bitVal
@@ -82,8 +87,8 @@ simpleAdbProtocol:
 ;		  if ptrRead-ptrWrt < 26 then skip polling
 ;---------------------------------------------------
 	movw	XL, p2
-	ld		ptrWrt, X
-	ld		ptrRead, -X						; ptrRead -> X-1
+	ld		ptrWrt, X+
+	ld		ptrRead, X						; ptrRead -> X+1
 	cp		ptrRead, ptrWrt
 	breq	sendAtten						; start polling if ptrWrt = ptrRead
 	brcs	ptrWrtIsGrater					; carry set if ptrWrt > ptrRead
@@ -103,7 +108,9 @@ ptrWrtIsGrater:
 ;---------------------------------------------------
 sendAtten:
 	sbi		ADB_DIRECTION_PORT, ADB_IO_BIT	; set for output
+	sbi		LED_PORT, LED_BIT
 	rcall	sendAttention
+	cbi		LED_PORT, LED_BIT
 ;+++++++++++++++++++++++++++++++++++++++++++++++++++
 ;	send command
 ;---------------------------------------------------
@@ -171,6 +178,11 @@ endProcessreadFromAdb:
 	pop		bitVal
 	pop		counter
 	pop		bitNo
+	pop		tmpVal
+	pop		YH
+	pop		YL
+	pop		XH
+	pop		XL
 	ret
 
 ;	sendAttention

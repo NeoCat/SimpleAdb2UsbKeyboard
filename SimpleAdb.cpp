@@ -22,8 +22,9 @@
 #include	"SimpleAdb.h"
 
 // Communication buffer
-byte		rPtr;									// read pointer
-byte		wPtr;									// write pointer
+byte		ptrs[2];
+byte		&wPtr = ptrs[0];							// write pointer
+byte		&rPtr = ptrs[1];							// read pointer
 byte		taBuf[256];								// type ahead buffer
 byte		command;
 byte		statusCmd;
@@ -39,6 +40,13 @@ SimpleAdbClass::SimpleAdbClass() {
 }
 
 void SimpleAdbClass::begin(byte adbCmd) {
+	if (((int)&wPtr) + 1 != (int)&rPtr) {
+		delay(2000);
+		Serial.println(F("Invalid addresses! check compile options"));
+		Serial.println((int)&wPtr, HEX);
+		Serial.println((int)&rPtr, HEX);
+		for (;;);
+	}
 	rPtr = 0;
 	wPtr = 0;
 	sendAdbReset();
@@ -49,17 +57,19 @@ void SimpleAdbClass::begin(byte adbCmd) {
 }
 
 void SimpleAdbClass::getKeyCode(byte	keyCode[]) {
-
+	cli();
 	keyCode[0] = taBuf[rPtr];
 	rPtr++;
 	keyCode[1] = taBuf[rPtr];
 	rPtr++;
+	sei();
 	return ;
 }
 
 int SimpleAdbClass::available(void) {
 	int		pendingCnt;
 
+	cli();
 	if (wPtr==rPtr) {
 		pendingCnt = 0;
 	} else if (wPtr>rPtr) {
@@ -67,5 +77,6 @@ int SimpleAdbClass::available(void) {
 	} else {
 		pendingCnt = wPtr + 256 - rPtr;
 	}
+	sei();
 	return pendingCnt;
 }
